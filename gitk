@@ -1661,6 +1661,13 @@ proc do_readgitcmd {id basecmd} {
     return $contents
 }
 
+proc do_readtag {tag} {
+
+    set basecmd "git cat-file -p "
+    set contents [do_readgitcmd $tag $basecmd]
+    return $contents
+}
+
 proc do_readcommit {id} {
 
     set basecmd "git log --no-color --pretty=raw -1 "
@@ -11271,7 +11278,7 @@ proc add_tag_ctext {tag} {
 
     if {![info exists cached_tagcontent($tag)]} {
 	catch {
-	    set cached_tagcontent($tag) [exec git cat-file -p $tag]
+	    set cached_tagcontent($tag) [do_readtag $tag]
 	}
     }
     $ctext insert end "[mc "Tag"]: $tag\n" bold
