@@ -1645,11 +1645,11 @@ proc chewcommits {} {
     return 0
 }
 
-proc do_readcommit {id} {
+proc do_readgitcmd {id basecmd} {
     global tclencoding
 
-    # Invoke git-log to handle automatic encoding conversion
-    set fd [open [concat | git log --no-color --pretty=raw -1 $id] r]
+    # Invoke git basecmd to handle automatic encoding conversion
+    set fd [open [concat | $basecmd $id] r]
     # Read the results using i18n.logoutputencoding
     fconfigure $fd -translation lf -eofchar {}
     if {$tclencoding != {}} {
@@ -1657,9 +1657,16 @@ proc do_readcommit {id} {
     }
     set contents [read $fd]
     close $fd
-    # Remove the heading line
-    regsub {^commit [0-9a-f]+\n} $contents {} contents
 
+    return $contents
+}
+
+proc do_readcommit {id} {
+
+    set basecmd "git log --no-color --pretty=raw -1 "
+    set contents [do_readgitcmd {$id $basecmd}]
+   # Remove the heading line
+    regsub {^commit [0-9a-f]+\n} $contents {} contents
     return $contents
 }
 
